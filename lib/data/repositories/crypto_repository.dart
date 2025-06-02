@@ -7,38 +7,36 @@ class CryptoRepository {
   CryptoRepository({required this.dataSource});
 
   Future<List<CryptoModel>> getCryptoList(List<String> symbols) async {
-    if (symbols.isEmpty) {
-      return [];
-    }
     try {
       final rawData = await dataSource.getCryptoQuotes(symbols);
       final List<CryptoModel> cryptoList = [];
 
       if (rawData['data'] is Map<String, dynamic>) {
-        final Map<String, dynamic> dataMap =
-            rawData['data'] as Map<String, dynamic>;
-
-        for (var symbolKey in dataMap.keys) {
+        (rawData['data'] as Map<String, dynamic>).forEach((symbolKey, value) {
           try {
-            cryptoList.add(CryptoModel.fromJson(rawData, symbolKey));
-          // ignore: empty_catches
-          } catch (e) {}
-        }
-      } else {}
-
-      if (cryptoList.isNotEmpty) {
-        cryptoList.sort((a, b) {
-          int indexA = symbols.indexOf(a.symbol.toUpperCase());
-          int indexB = symbols.indexOf(b.symbol.toUpperCase());
-          if (indexA != -1 && indexB != -1) {
-            return indexA.compareTo(indexB);
+            if (value is List && value.isNotEmpty) {
+               final Map<String, dynamic> singleCryptoJson = {
+                 "data": {
+                   symbolKey: value
+                 }
+               };
+              cryptoList.add(CryptoModel.fromJson(singleCryptoJson, symbolKey));
+            } else if (value is Map<String, dynamic>) { 
+               final Map<String, dynamic> singleCryptoJson = {
+                 "data": {
+                   symbolKey: [value] 
+                 }
+               };
+              cryptoList.add(CryptoModel.fromJson(singleCryptoJson, symbolKey));
+            }
+          } catch (e) {
+            print("Erro ao fazer parse do símbolo $symbolKey: $e");
           }
-          return a.cmcRank.compareTo(b.cmcRank);
         });
       }
-
       return cryptoList;
     } catch (e) {
+      print("Erro no CryptoRepository: $e");
       rethrow;
     }
   }

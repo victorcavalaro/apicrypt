@@ -5,20 +5,30 @@ import '../../core/constants/app_constants.dart';
 class CoinMarketCapDataSource {
   final http.Client client;
 
-  CoinMarketCapDataSource({http.Client? client}) : client = client ?? http.Client();
+  CoinMarketCapDataSource({http.Client? client})
+    : client = client ?? http.Client();
 
   Future<Map<String, dynamic>> getCryptoQuotes(List<String> symbols) async {
-    if (AppConstants.apiKey == "SUA_API_KEY_AQUI") {
-       throw Exception(
-          "Por favor, configure sua API Key da CoinMarketCap em lib/core/constants/app_constants.dart");
+    if (AppConstants.apiKey == "SUA_API_KEY_AQUI" ||
+        AppConstants.apiKey.trim().isEmpty) {
+      throw Exception(
+        "Por favor, configure sua API Key da CoinMarketCap em lib/core/constants/app_constants.dart",
+      );
+    }
+
+    if (symbols.isEmpty) {
+      return {"data": {}};
     }
 
     final symbolsParam = symbols.join(',');
     final uri = Uri.https(
-        AppConstants.baseUrl, AppConstants.quotesLatestEndpoint, {
-      'symbol': symbolsParam,
-      'convert': 'USD,BRL', 
-    });
+      AppConstants.baseUrl,
+      AppConstants.quotesLatestEndpoint,
+      {
+        'symbol': symbolsParam,
+        'convert': 'USD',
+      },
+    );
 
     try {
       final response = await client.get(
@@ -30,21 +40,28 @@ class CoinMarketCapDataSource {
       );
 
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        return json.decode(response.body) as Map<String, dynamic>;
       } else {
-        String errorMessage = 'Falha ao carregar dados: ${response.statusCode}';
+        String errorMessage =
+            'Falha ao carregar dados da API: ${response.statusCode}';
         try {
           final errorBody = json.decode(response.body);
-          if (errorBody['status'] != null && errorBody['status']['error_message'] != null) {
+          if (errorBody['status'] != null &&
+              errorBody['status']['error_message'] != null) {
             errorMessage += ' - ${errorBody['status']['error_message']}';
+          } else {
+            errorMessage += ' - Corpo da resposta: ${response.body}';
           }
-        // ignore: empty_catches
         } catch (e) {
+          print('DataSource: Falha ao fazer parse do corpo do erro da API: $e');
+          errorMessage += ' - Corpo da resposta (sem parse): ${response.body}';
         }
         throw Exception(errorMessage);
       }
     } catch (e) {
-      throw Exception('Erro de conexão ou ao processar a requisição: ${e.toString()}');
+      throw Exception(
+        'Erro de conexão ou ao processar a requisição: ${e.toString()}',
+      );
     }
   }
 }

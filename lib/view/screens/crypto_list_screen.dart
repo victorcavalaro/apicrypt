@@ -152,7 +152,8 @@ class _CryptoListScreenState extends State<CryptoListScreen> {
           },
         );
       case ViewState.idle:
-      return const Center(child: Text('Use a busca ou o botão de atualizar para carregar os dados.'));
+      default:
+        return const Center(child: Text('Use a busca ou o botão de atualizar para carregar os dados.'));
     }
   }
 }

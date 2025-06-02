@@ -1,24 +1,23 @@
-name: apicrypt 
+name: nome_do_seu_projeto 
 description: A new Flutter project.
-publish_to: 'none' 
+publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
-  sdk: '^3.8.0' 
+  sdk: '^3.8.0'
 
 dependencies:
   flutter:
     sdk: flutter
 
- 
-  http: ^1.2.1       
-  provider: ^6.1.2   
-  intl: ^0.19.0      
-  cupertino_icons: ^1.0.6 
+  http: ^1.2.1
+  provider: ^6.1.2
+  intl: ^0.19.0
+  cupertino_icons: ^1.0.6
 
 dev_dependencies:
   flutter_test:
-    sdk: flutter 
+    sdk: flutter
 
   flutter_lints: ^3.0.0 

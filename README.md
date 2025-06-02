@@ -1,4 +1,4 @@
-# apicrypt
+# crypto
 
 A new Flutter project.
 
